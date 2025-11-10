@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Surprise for Her — Tap to Open</title>
+<style>
+  :root{
+    --bg:#fff0f6;
+    --card:#fff;
+    --pink:#ff6fa3;
+    --muted:#7b7280;
+    --accent:#ff4d80;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;background:linear-gradient(180deg,#ffeef8 0%, #fff0f6 100%);color:#222;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+  .wrap{width:100%;max-width:720px}
+  .card{background:var(--card);border-radius:20px;padding:22px;box-shadow:0 8px 30px rgba(11,7,20,0.08);text-align:center}
+  h1{margin:6px 0 12px;font-size:22px;color:var(--accent);letter-spacing:0.6px}
+  p.lead{margin:0 0 18px;color:var(--muted)}
+  .btn{background:linear-gradient(90deg,var(--pink),var(--accent));border:none;color:white;padding:12px 18px;border-radius:14px;font-weight:700;cursor:pointer;font-size:16px;box-shadow:0 8px 24px rgba(255,77,128,0.18)}
+  .controls{display:flex;gap:8px;justify-content:center;margin-top:12px}
+  .small{font-size:13px;color:var(--muted);margin-top:10px}
+  .viewer{margin-top:18px;display:none;flex-direction:column;align-items:center;gap:12px}
+  .photo{width:100%;max-width:520px;border-radius:12px;overflow:hidden;background:#f6f2f8;box-shadow:0 6px 20px rgba(11,7,20,0.06)}
+  .photo img{width:100%;height:auto;display:block}
+  .caption{background:linear-gradient(90deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4));padding:10px 14px;border-radius:10px;margin-top:8px;font-weight:700;color:#333}
+  .final{display:none;flex-direction:column;align-items:center;gap:10px;margin-top:12px}
+  .hearts{position:fixed;left:0;top:0;pointer-events:none;width:100%;height:100%;overflow:hidden;display:none}
+  .heart{position:absolute;width:20px;height:20px;background:transparent}
+  .heart:before{content:"❤";color:var(--pink);font-size:20px;display:block;transform:scale(1.2)}
+  .editPanel{display:none;margin-top:12px;text-align:left;border-radius:10px;padding:12px;background:#fff4fb;border:1px solid rgba(255,110,150,0.06)}
+  input[type=file]{display:block;margin-bottom:8px}
+  .meta{margin-top:10px;color:var(--muted);font-size:13px}
+  footer{margin-top:14px;color:var(--muted);font-size:13px}
+  @media (max-width:480px){h1{font-size:20px}.btn{padding:10px 14px}}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>TO THE MOST BEAUTIFUL GIRLFRIEND IN THE WORLD!!</h1>
+      <p class="lead">A little surprise from someone who loves you 💕</p>
+      <button id="openBtn" class="btn">Tap here 💕</button>
+      <div class="controls">
+        <button id="editBtn" class="btn" style="background:transparent;color:var(--accent);border:1px solid rgba(255,77,128,0.12);box-shadow:none">Edit (You)</button>
+      </div>
+
+      <div class="viewer" id="viewer">
+        <div class="photo" id="photoWrap"><img id="photo" src="" alt="photo"></div>
+        <div class="caption" id="caption"></div>
+        <div class="final" id="final">
+          <h2 style="color:var(--accent);margin:0">I LOVEEEE MYY GIRLL EVENNN MOREEE 💖</h2>
+          <p class="meta">Replay or share the link to surprise her again 💌</p>
+          <div style="display:flex;gap:8px">
+            <button id="replay" class="btn" style="background:linear-gradient(90deg,#ffd1e7,#ff7aa3)">Replay</button>
+            <button id="stop" class="btn" style="background:transparent;color:var(--muted);border:1px solid rgba(0,0,0,0.06)">Stop Music</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="editPanel" id="editPanel">
+        <label>Upload Photo 1 (will show first):</label>
+        <input id="file1" type="file" accept="image/*">
+        <label>Upload Photo 2 (will show second):</label>
+        <input id="file2" type="file" accept="image/*">
+        <label>Upload Photo 3 (will show third):</label>
+        <input id="file3" type="file" accept="image/*">
+        <label>Optional: Upload audio file (mp3) or paste audio URL below:</label>
+        <input id="audioFile" type="file" accept="audio/*">
+        <input id="audioUrl" type="url" placeholder="https://example.com/song.mp3 (or leave empty)">
+         <label>Tambahkan Link YouTube (opsional):</label>
+<input id="youtubeUrl" type="url" placeholder="https://www.youtube.com/watch?v=..." />
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button id="saveEdit" class="btn" style="background:linear-gradient(90deg,#ff9ccf,#ff6fa3)">Save</button>
+          <button id="closeEdit" class="btn" style="background:transparent;color:var(--muted);border:1px solid rgba(0,0,0,0.06)">Close</button>
+        </div>
+        <p class="small">Tip: If you want to use a YouTube song, use a service to convert to direct mp3 link or upload an mp3. Files are saved in your browser (localStorage).</p>
+      </div>
+
+      <div class="small">When you open the surprise, photos will appear with your messages.</div>
+      <footer>Made with ♥ — Open the Edit panel to add photos and music</footer>
+    </div>
+  </div>
+
+  <div class="hearts" id="hearts"></div>
+     <div id="musicPlayer" style="display:none; text-align:center; margin-top:15px;">
+  <iframe id="ytFrame" width="300" height="200" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+</div>
+
+<script>
+ const youtubeInput = document.getElementById('youtubeUrl');
+const ytFrame = document.getElementById('ytFrame');
+const musicPlayer = document.getElementById('musicPlayer');
+
+document.getElementById('saveEdit').addEventListener('click', () => {
+  const ytLink = youtubeInput.value;
+  if (ytLink.includes('youtube.com')) {
+    const videoId = ytLink.split('v=')[1].split('&')[0];
+    ytFrame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&start=34`;
+    musicPlayer.style.display = 'block';
+  }
+});
+const captions = [
+  "I LOVE HER SMILE 😍",
+  "I REALLY LOVE SPENDING TIME WITH HER 😍😍😍",
+  "SHE IS SO BEAUTIFUL, SO CUTE AND SO SWEET 🌹🌹"
+];
+const finalMessage = "THE BEAUTY IS IN MY GIRL I LOVEEEE MYY GIRLL EVENNN MOREEE 💖";
+const STORAGE_KEY = "surprise_data_v1";
+
+// Elements
+const openBtn = document.getElementById('openBtn');
+const editBtn = document.getElementById('editBtn');
+const viewer = document.getElementById('viewer');
+const photo = document.getElementById('photo');
+const captionEl = document.getElementById('caption');
+const finalEl = document.getElementById('final');
+const editPanel = document.getElementById('editPanel');
+const file1 = document.getElementById('file1');
+const file2 = document.getElementById('file2');
+const file3 = document.getElementById('file3');
+const audioFile = document.getElementById('audioFile');
+const audioUrl = document.getElementById('audioUrl');
+const saveEdit = document.getElementById('saveEdit');
+const closeEdit = document.getElementById('closeEdit');
+const replayBtn = document.getElementById('replay');
+const stopBtn = document.getElementById('stop');
+const heartsLayer = document.getElementById('hearts');
+
+let data = loadData();
+let audio = new Audio();
+audio.loop = true;
+let currentIndex = 0;
+let playing = false;
+let heartsInterval = null;
+
+function loadData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return {images:[], audioUrl:""};
+    return JSON.parse(raw);
+  }catch(e){return {images:[], audioUrl:""}};
+}
+
+function saveData(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function fileToDataUrl(file, cb){
+  const reader = new FileReader();
+  reader.onload = ()=>cb(reader.result);
+  reader.readAsDataURL(file);
+}
+
+function showHearts(){
+  heartsLayer.style.display='block';
+  heartsInterval = setInterval(()=>{
+    const h = document.createElement('div');
+    h.className = 'heart';
+    h.style.left = Math.random()*100 + '%';
+    h.style.top = '100%';
+    const size = 16 + Math.random()*28;
+    h.style.fontSize = size+'px';
+    h.style.opacity = 0.9;
+    heartsLayer.appendChild(h);
+    const duration = 3000 + Math.random()*2000;
+    h.animate([{transform:'translateY(0) scale(1)', opacity:1}, {transform:'translateY(-120vh) scale(0.6)', opacity:0}], {duration:duration, easing:'linear'});
+    setTimeout(()=>h.remove(), duration+200);
+  }, 350);
+}
+
+function stopHearts(){
+  heartsLayer.style.display='none';
+  clearInterval(heartsInterval);
+  heartsLayer.innerHTML='';
+}
+
+function startSequence(){
+  // hide initial, show viewer
+  document.getElementById('openBtn').style.display='none';
+  viewer.style.display='flex';
+  currentIndex = 0;
+  playAudioIfAvailable();
+  showSlide(currentIndex);
+}
+
+function showSlide(i){
+  const img = data.images[i];
+  if(img){
+    photo.src = img;
+  } else {
+    photo.src = "";
+    photo.alt = "No image uploaded";
+  }
+  captionEl.textContent = captions[i] || "";
+  captionEl.style.opacity = 0;
+  photo.style.opacity = 0;
+  // fade in
+  setTimeout(()=>{ photo.style.transition='opacity 700ms'; photo.style.opacity=1; captionEl.style.transition='opacity 700ms'; captionEl.style.opacity=1 }, 60);
+  // move to next
+  setTimeout(()=>{
+    currentIndex++;
+    if(currentIndex < 3){
+      showSlide(currentIndex);
+    } else {
+      // end sequence
+      setTimeout(()=>{
+        finalEl.style.display='flex';
+        showHearts();
+      }, 700);
+    }
+  }, 2500); // each slide visible 2.5s
+}
+
+function playAudioIfAvailable(){
+  if(data.audioUrl){
+    audio.src = data.audioUrl;
+    audio.play().catch(()=>{});
+    playing = true;
+  }
+}
+
+openBtn.addEventListener('click', ()=>{
+  startSequence();
+});
+
+editBtn.addEventListener('click', ()=>{
+  editPanel.style.display = editPanel.style.display === 'none' || editPanel.style.display==='' ? 'block' : 'none';
+});
+
+closeEdit.addEventListener('click', ()=>{ editPanel.style.display='none'; });
+
+saveEdit.addEventListener('click', ()=>{
+  // handle files
+  const promises = [];
+  if(file1.files[0]){
+    promises.push(new Promise(res=>fileToDataUrl(file1.files[0], d=>{data.images[0]=d;res()})));
+  }
+  if(file2.files[0]){
+    promises.push(new Promise(res=>fileToDataUrl(file2.files[0], d=>{data.images[1]=d;res()})));
+  }
+  if(file3.files[0]){
+    promises.push(new Promise(res=>fileToDataUrl(file3.files[0], d=>{data.images[2]=d;res()})));
+  }
+  // audio file (optional)
+  if(audioFile.files[0]){
+    // convert to data url
+    promises.push(new Promise(res=>{
+      const r = new FileReader();
+      r.onload = ()=>{ data.audioUrl = r.result; res(); };
+      r.readAsDataURL(audioFile.files[0]);
+    }));
+  } else if(audioUrl.value){
+    data.audioUrl = audioUrl.value;
+  }
+  Promise.all(promises).then(()=>{
+    saveData();
+    alert('Saved! Close panel and Tap to open the surprise.');
+    editPanel.style.display='none';
+  });
+});
+
+replayBtn.addEventListener('click', ()=>{
+  finalEl.style.display='none';
+  stopHearts();
+  startSequence();
+});
+
+stopBtn.addEventListener('click', ()=>{
+  audio.pause();
+  playing = false;
+  stopHearts();
+});
+
+// init UI with saved data
+(function init(){
+  if(data.images[0]){ /* nothing */ }
+  // show initial image placeholder if available
+})();
+
+</script>
+</body>
+</html>
